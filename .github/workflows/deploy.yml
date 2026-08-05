@@ -1,0 +1,26 @@
+name: Contoso CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Azure VM
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.AZURE_VM_HOST }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          script: |
+            cd /opt/contoso-app
+            git pull origin main
+            source venv/bin/activate
+            pytest
+            sudo systemctl restart contoso
+            sudo systemctl is-active --quiet contoso
+            curl -f http://127.0.0.1:5000/health
