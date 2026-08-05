@@ -23,4 +23,15 @@ jobs:
             pytest
             sudo systemctl restart contoso
             sudo systemctl is-active --quiet contoso
-            curl -f http://127.0.0.1:5000/health
+
+            for i in {1..10}; do
+              if curl -fs http://127.0.0.1:5000/health; then
+                exit 0
+              fi
+              sleep 2
+            done
+
+            echo "Health check failed"
+            sudo systemctl status contoso --no-pager
+            sudo journalctl -u contoso -n 30 --no-pager
+            exit 1
