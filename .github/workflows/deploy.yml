@@ -38,9 +38,10 @@ jobs:
 
             echo "Starting new container..."
             docker run -d \
-              --name contoso-container \
-              -p 127.0.0.1:5000:5000 \
-              contoso-app:$IMAGE_TAG
+            --name contoso-container \
+            --restart unless-stopped \
+            -p 127.0.0.1:5000:5000 \
+            contoso-app:$IMAGE_TAG
 
             echo "Waiting for application..."
             sleep 3
@@ -53,5 +54,8 @@ jobs:
 
             echo "Testing Nginx..."
             curl -f http://127.0.0.1/health
+
+            echo "Cleaning old Docker images..."
+            docker image prune -f
 
             echo "Deployment successful!"
