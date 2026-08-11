@@ -30,7 +30,8 @@ jobs:
             pytest
 
             echo "Building Docker image..."
-            docker build -t contoso-app:latest .
+            IMAGE_TAG=$(git rev-parse --short HEAD)
+            docker build -t contoso-app:$IMAGE_TAG .
 
             echo "Stopping old container..."
             docker rm -f contoso-container || true
@@ -39,7 +40,7 @@ jobs:
             docker run -d \
               --name contoso-container \
               -p 127.0.0.1:5000:5000 \
-              contoso-app:latest
+              contoso-app:$IMAGE_TAG
 
             echo "Waiting for application..."
             sleep 3
