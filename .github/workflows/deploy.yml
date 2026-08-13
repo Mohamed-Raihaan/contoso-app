@@ -40,6 +40,7 @@ jobs:
             docker run -d \
             --name contoso-container \
             --restart unless-stopped \
+            --env-file /opt/contoso-app/.env \
             -p 127.0.0.1:5000:5000 \
             contoso-app:$IMAGE_TAG
 
@@ -54,6 +55,9 @@ jobs:
 
             echo "Testing Nginx..."
             curl -f http://127.0.0.1/health
+            
+            echo "Testing database..."
+            curl -f http://127.0.0.1:5000/products
 
             echo "Cleaning old Docker images..."
             docker image prune -f
