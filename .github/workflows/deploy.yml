@@ -57,7 +57,21 @@ jobs:
             curl -f http://127.0.0.1/health
             
             echo "Testing database..."
-            curl -f http://127.0.0.1:5000/products
+
+            for i in 1 2 3; do
+              if curl -fsS --max-time 20 http://127.0.0.1:5000/products; then
+                echo "Database check passed"
+                break
+              fi
+
+              if [ "$i" -eq 3 ]; then
+                echo "Database check failed after 3 attempts"
+                exit 1
+              fi
+
+              echo "Database check failed. Retrying in 5 seconds..."
+              sleep 5
+            done
 
             echo "Cleaning old Docker images..."
             docker image prune -f
