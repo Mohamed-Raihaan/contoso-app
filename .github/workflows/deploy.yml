@@ -1,48 +1,43 @@
+name: Contoso CD
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: [self-hosted, Linux, X64, contoso-deploy]
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
       - name: Deploy Docker application
         run: |
           set -e
-
-          echo "=== Syncing code to /opt/contoso-app ==="
-          rsync -a --delete --no-owner --no-group \
-            --exclude='.git' \
-            --exclude='venv' \
-            --exclude='.env' \
-            ./ /opt/contoso-app/
-
           cd /opt/contoso-app
-
-          echo "=== Running tests ==="
+          echo "Pulling latest code..."
+          git pull origin main
+          echo "Running tests..."
           source venv/bin/activate
           pytest
-
-          echo "=== Building Docker image ==="
-          IMAGE_TAG=${{ github.sha }}
+          echo "Building Docker image..."
+          IMAGE_TAG=$(git rev-parse --short HEAD)
           docker build -t contoso-app:$IMAGE_TAG .
-
-          echo "=== Stopping old container ==="
+          echo "Stopping old container..."
           docker rm -f contoso-container || true
-
-          echo "=== Starting new container ==="
+          echo "Starting new container..."
           docker run -d \
             --name contoso-container \
             --restart unless-stopped \
             --env-file /opt/contoso-app/.env \
             -p 127.0.0.1:5000:5000 \
             contoso-app:$IMAGE_TAG
-
-          echo "=== Waiting for application ==="
-          sleep 5
-
-          echo "=== Checking container ==="
+          echo "Waiting for application..."
+          sleep 3
+          echo "Checking container..."
           docker ps
-
-          echo "=== Running health check ==="
+          echo "Running health check..."
           curl -f http://127.0.0.1:5000/health
-
-          echo "=== Testing Nginx ==="
+          echo "Testing Nginx..."
           curl -f http://127.0.0.1/health
-
-          echo "=== Testing database ==="
+          echo "Testing database..."
           for i in 1 2 3; do
             if curl -fsS --max-time 20 http://127.0.0.1:5000/products; then
               echo "Database check passed"
@@ -55,8 +50,6 @@
             echo "Database check failed. Retrying in 5 seconds..."
             sleep 5
           done
-
-          echo "=== Cleaning old Docker images ==="
+          echo "Cleaning old Docker images..."
           docker image prune -f
-
-          echo "=== Deployment successful! ==="
+          echo "Deployment successful!"
