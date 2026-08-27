@@ -18,19 +18,17 @@ jobs:
         run: |
           set -e
 
-          echo "=== Moving to application directory ==="
-          cd /opt/contoso-app
+          echo "=== Syncing code to /opt/contoso-app ==="
+          rsync -a --delete --exclude='.git' --exclude='venv' --exclude='.env' ./ /opt/contoso-app/
 
-          echo "=== Pulling latest code ==="
-          git fetch origin main
-          git reset --hard origin/main
+          cd /opt/contoso-app
 
           echo "=== Running tests ==="
           source venv/bin/activate
           pytest
 
           echo "=== Building Docker image ==="
-          IMAGE_TAG=$(git rev-parse --short HEAD)
+          IMAGE_TAG=${{ github.sha }}
           docker build -t contoso-app:$IMAGE_TAG .
 
           echo "=== Stopping old container ==="
