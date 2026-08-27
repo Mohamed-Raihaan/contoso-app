@@ -11,70 +11,66 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
-      - name: Deploy Docker application to Azure VM
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.AZURE_VM_HOST }}
-          username: ${{ secrets.AZURE_VM_USER }}
-          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-          script: |
-            set -e
+      - name: Deploy Docker application
+        run: |
+          set -e
 
-            cd /opt/contoso-app
+          echo "=== Moving to application directory ==="
+          cd /opt/contoso-app
 
-            echo "Pulling latest code..."
-            git pull origin main
+          echo "=== Pulling latest code ==="
+          git fetch origin main
+          git reset --hard origin/main
 
-            echo "Running tests..."
-            source venv/bin/activate
-            pytest
+          echo "=== Running tests ==="
+          source venv/bin/activate
+          pytest
 
-            echo "Building Docker image..."
-            IMAGE_TAG=$(git rev-parse --short HEAD)
-            docker build -t contoso-app:$IMAGE_TAG .
+          echo "=== Building Docker image ==="
+          IMAGE_TAG=$(git rev-parse --short HEAD)
+          docker build -t contoso-app:$IMAGE_TAG .
 
-            echo "Stopping old container..."
-            docker rm -f contoso-container || true
+          echo "=== Stopping old container ==="
+          docker rm -f contoso-container || true
 
-            echo "Starting new container..."
-            docker run -d \
+          echo "=== Starting new container ==="
+          docker run -d \
             --name contoso-container \
             --restart unless-stopped \
             --env-file /opt/contoso-app/.env \
             -p 127.0.0.1:5000:5000 \
             contoso-app:$IMAGE_TAG
 
-            echo "Waiting for application..."
-            sleep 3
+          echo "=== Waiting for application ==="
+          sleep 5
 
-            echo "Checking container..."
-            docker ps
+          echo "=== Checking container ==="
+          docker ps
 
-            echo "Running health check..."
-            curl -f http://127.0.0.1:5000/health
+          echo "=== Running health check ==="
+          curl -f http://127.0.0.1:5000/health
 
-            echo "Testing Nginx..."
-            curl -f http://127.0.0.1/health
-            
-            echo "Testing database..."
+          echo "=== Testing Nginx ==="
+          curl -f http://127.0.0.1/health
 
-            for i in 1 2 3; do
-              if curl -fsS --max-time 20 http://127.0.0.1:5000/products; then
-                echo "Database check passed"
-                break
-              fi
+          echo "=== Testing database ==="
+          for i in 1 2 3; do
+            if curl -fsS --max-time 20 http://127.0.0.1:5000/products; then
+              echo "Database check passed"
+              break
+            fi
+            if [ "$i" -eq 3 ]; then
+              echo "Database check failed after 3 attempts"
+              exit 1
+            fi
+            echo "Database check failed. Retrying in 5 seconds..."
+            sleep 5
+          done
 
-              if [ "$i" -eq 3 ]; then
-                echo "Database check failed after 3 attempts"
-                exit 1
-              fi
+          echo "=== Cleaning old Docker images ==="
+          docker image prune -f
 
-              echo "Database check failed. Retrying in 5 seconds..."
-              sleep 5
-            done
-
-            echo "Cleaning old Docker images..."
-            docker image prune -f
-
-            echo "Deployment successful!"
+          echo "=== Deployment successful! ==="
