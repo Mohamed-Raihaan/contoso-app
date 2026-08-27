@@ -24,7 +24,7 @@ def get_db_connection():
 
 @app.route("/")
 def home():
-    return "<h1>Contoso Retail Production - Cloud Arc Reactor</h1><p>Application deployed successfully</p>"
+    return "<h1>Contoso Retail Production - Cloud Migration </h1><p>Application deployed successfully</p>"
 
 
 @app.route("/health")
