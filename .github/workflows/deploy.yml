@@ -1,25 +1,13 @@
-name: Contoso CD
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: [self-hosted, Linux, X64, contoso-deploy]
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Deploy Docker application
         run: |
           set -e
 
           echo "=== Syncing code to /opt/contoso-app ==="
-          rsync -a --delete --exclude='.git' --exclude='venv' --exclude='.env' ./ /opt/contoso-app/
+          rsync -a --delete --no-owner --no-group \
+            --exclude='.git' \
+            --exclude='venv' \
+            --exclude='.env' \
+            ./ /opt/contoso-app/
 
           cd /opt/contoso-app
 
