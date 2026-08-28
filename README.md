@@ -90,7 +90,15 @@ The project also implements automated CI/CD using GitHub Actions and a self-host
 | GitHub Actions | CI/CD automation |
 
 ## 🌐 Network Architecture
+![Resource Groups](docs/screenshots/Resource%20Groups.png)
 
+![VNet Overview](docs/screenshots/Vnet%20Overview.png)
+
+![Subnets](docs/screenshots/Subnets.png)
+
+![Web NSG](docs/screenshots/Nsg-Web.png)
+
+![Web Subnet NSG Association](docs/screenshots/Web%20subnet-Nsg%20Association.png)
 ### VNet
 
 **VNet:** `vnet-contoso-prod-ci-001`
@@ -149,7 +157,11 @@ Administrator IP
 Azure Bastion provides secure browser-based administrative access to the VM.
 
 ## 🖥️ Application Infrastructure
+![VM Overview](docs/screenshots/Vm%20Overview.png)
 
+![VM Networking](docs/screenshots/Vm-Network.png)
+
+![Bastion](docs/screenshots/Bastion%20Overview.png)
 **VM:** `vm-web-prod-ci-001`
 
 **Operating System:** Ubuntu 24.04 LTS
@@ -175,7 +187,7 @@ Docker exposes the application only on the localhost interface.
 Nginx handles incoming HTTP traffic on port 80 and forwards requests to Flask.
 
 ## 🐳 Docker
-
+![Docker Container](docs/screenshots/Docker%20Ps.png)
 The Flask application is packaged into a Docker image and deployed as:
 
 `contoso-container`
@@ -195,7 +207,7 @@ The `.env` file is excluded from Git using `.gitignore`.
 No application secrets are committed to the public repository.
 
 ## 🗄️ Azure SQL Database
-
+![Azure SQL Database](docs/screenshots/Azure%20Sql%20Overview.png)
 The application uses **Azure SQL Database** as its managed relational database.
 
 Architecture:
@@ -250,7 +262,7 @@ Monitoring provides visibility into:
 The originally planned `rg-contoso-monitoring-ci-001` is currently unused.
 
 ## 💾 Backup
-
+![Azure Backup](docs/screenshots/Azure%20Backup.png)
 Azure Backup is configured to protect the deployed VM.
 
 Azure Backup resources are associated with:
@@ -270,7 +282,11 @@ No unnecessary broad RBAC permissions were added to the VM managed identity.
 ## 🔄 CI/CD
 
 GitHub Actions is used for automated testing and deployment.
+![GitHub Actions CI/CD](docs/screenshots/Github%20Action%20CI-CD.png)
 
+![Self Hosted Runner](docs/screenshots/Self%20Hosted%20Runner.png)
+
+![Runner Service](docs/screenshots/Runner%20Service%20(VM).png)
 ### Continuous Integration
 
 ```text
@@ -323,7 +339,12 @@ Flask
 10. Unused Docker images are cleaned up.
 
 ## 🧪 Health Checks
+![Health Endpoint](docs/screenshots/Health%20Endpoint.png)
 
+![Products Endpoint](docs/screenshots/Products%20Endpoint.png)
+
+![Deployment Health Checks](docs/screenshots/Deployment%20Health%20Checks.png)
+![Application](docs/screenshots/website%28Application%29.png)
 The deployment validates:
 
 ### Application health
