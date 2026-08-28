@@ -10,14 +10,19 @@ jobs:
     runs-on: [self-hosted, contoso-deploy]
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Deploy Docker application
         run: |
           set -e
 
-          cd /opt/contoso-app
+          echo "Syncing application files..."
+          rsync -av --delete \
+            --exclude='.env' \
+            ./ /opt/contoso-app/
 
-          echo "Pulling latest code..."
-          git pull origin main
+          cd /opt/contoso-app
 
           echo "Running tests..."
           source venv/bin/activate
