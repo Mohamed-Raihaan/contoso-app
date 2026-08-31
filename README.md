@@ -22,7 +22,7 @@ The project also implements automated CI/CD using GitHub Actions and a self-host
 - Troubleshoot real-world cloud deployment issues
 
 ## 🏗️ Architecture
-
+![Azure Contoso Architecture Diagram](docs/screenshots/Azure%20Contoso%20Architecture%20Diagram.png)
 ```text
                          Internet
                             |
